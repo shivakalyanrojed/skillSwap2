@@ -45,4 +45,10 @@ app.use("/request", requestRouter);
 app.use("/report", reportRouter);
 app.use("/rating", ratingRouter);
 
+
+app.get("/", (req, res) => {
+  res.send("Skill Swap Backend is running ✅");
+});
+
+
 export { app };
