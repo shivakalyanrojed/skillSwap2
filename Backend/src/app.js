@@ -5,29 +5,57 @@ import passport from "passport";
 
 const app = express();
 
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-app.use(express.json({ limit: "16kb" })); // to parse json in body
-app.use(express.urlencoded({ extended: true, limit: "16kb" })); // to parse url
-app.use(express.static("public")); // to use static public folder
-app.use(cookieParser()); // to enable CRUD operation on browser cookies
-
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  // Add other CORS headers as needed
-  next();
-});
+// Body parsing middleware
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
 
 // Passport middleware
 app.use(passport.initialize());
 
-// Importing routes
+// Health check route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Skill Swap Backend is running ✅",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is healthy",
+    uptime: process.uptime(),
+  });
+});
+
+// Import routes
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import chatRouter from "./routes/chat.routes.js";
@@ -36,7 +64,7 @@ import requestRouter from "./routes/request.routes.js";
 import reportRouter from "./routes/report.routes.js";
 import ratingRouter from "./routes/rating.routes.js";
 
-// Using routes
+// Use routes
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
 app.use("/chat", chatRouter);
@@ -45,10 +73,21 @@ app.use("/request", requestRouter);
 app.use("/report", reportRouter);
 app.use("/rating", ratingRouter);
 
-
-app.get("/", (req, res) => {
-  res.send("Skill Swap Backend is running ✅");
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
 });
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 export { app };

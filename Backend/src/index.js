@@ -9,57 +9,60 @@ const port = process.env.PORT || 8000;
 
 connectDB()
   .then(() => {
-    console.log("Database connected");
+    console.log("✅ Database connected successfully");
+    
     const server = app.listen(port, () => {
-      console.log(`Server listening on port ${port}`);
+      console.log(`🚀 Server is running on port ${port}`);
     });
 
+    // Socket.io configuration
     const io = new Server(server, {
       pingTimeout: 60000,
       cors: {
-        origin: "*",
+        origin: process.env.FRONTEND_URL || "http://localhost:5173",
+        credentials: true,
       },
     });
 
     io.on("connection", (socket) => {
-      console.log("Connected to socket");
+      console.log("✅ Socket connected:", socket.id);
 
       socket.on("setup", (userData) => {
-        console.log("Connected to socket in setup: ", userData.username);
-        socket.join(userData._id);
-        socket.emit("connected");
+        if (userData && userData._id) {
+          console.log("User setup:", userData.username);
+          socket.join(userData._id);
+          socket.emit("connected");
+        }
       });
 
       socket.on("join chat", (room) => {
-        console.log("Joining chat: ", room);
+        console.log("User joined chat:", room);
         socket.join(room);
-        console.log("Joined chat: ", room);
       });
 
       socket.on("new message", (newMessage) => {
-        // console.log("New message: ", newMessage);
-        var chat = newMessage.chatId;
-        if (!chat.users) return console.log("Chat.users not defined");
-        // console.log("Chat.users: ", chat.users);
+        const chat = newMessage.chatId;
+        if (!chat || !chat.users) {
+          console.log("❌ Chat.users not defined");
+          return;
+        }
+        
         chat.users.forEach((user) => {
-          // console.log("User: ", user);
           if (user._id === newMessage.sender._id) return;
           io.to(user._id).emit("message recieved", newMessage);
-          console.log("Message sent to: ", user._id);
         });
       });
 
-      socket.off("setup", () => {
-        console.log("Disconnected from socket");
-        console.log("Disconnected from socket");
-        socket.leave(userData._id);
+      socket.on("disconnect", () => {
+        console.log("❌ Socket disconnected:", socket.id);
+      });
+
+      socket.on("error", (error) => {
+        console.error("Socket error:", error);
       });
     });
   })
   .catch((err) => {
-    console.log(err);
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1);
   });
-
-app.listen(process.env.PORT,()=>{
-  console.log("server is running successfully")
-})
