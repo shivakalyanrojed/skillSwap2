@@ -9,6 +9,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://skill-swap2-frontend.vercel.app/"
 ].filter(Boolean);
 
 app.use(
