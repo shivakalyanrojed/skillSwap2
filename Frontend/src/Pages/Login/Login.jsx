@@ -3,16 +3,17 @@ import Button from "react-bootstrap/Button";
 import { FaGoogle } from "react-icons/fa";
 
 const Login = () => {
-  const [isHovered, setIsHovered] = useState(false); // State for hover effect
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Use environment variable for backend URL, fallback to production URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://skillswap2-mo3i.onrender.com";
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google";
+    window.location.href = `${BACKEND_URL}/auth/google`;
   };
 
   const containerStyle = {
-    // height: "90.4vh",
     minHeight: "90.4vh",
-    // height: "100%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -27,7 +28,7 @@ const Login = () => {
     flexDirection: "column",
     justifyContent: "space-between",
     padding: "20px",
-    border: "1px solid #fcaaa8", // Border color
+    border: "1px solid #fcaaa8",
     borderRadius: "10px",
     boxShadow: "10px 10px 10px #5c4242",
     zIndex: "999",
@@ -35,8 +36,8 @@ const Login = () => {
 
   const titleStyle = {
     fontSize: "50px",
-    fontFamily: "Oswald, sans-serif", // Font family
-    color: "#fcaaa8", // Text color
+    fontFamily: "Oswald, sans-serif",
+    color: "#fcaaa8",
     textAlign: "center",
   };
 
@@ -46,8 +47,8 @@ const Login = () => {
   };
 
   const buttonStyle = {
-    backgroundColor: "#f56664", // Button background color
-    color: "#fff", // Button text color
+    backgroundColor: "#f56664",
+    color: "#fff",
     fontFamily: "Montserrat",
     border: "none",
     padding: "10px 20px",
@@ -56,30 +57,30 @@ const Login = () => {
   };
 
   const hoverButtonStyle = {
-    backgroundColor: "#fff", // Button background color on hover
-    color: "#f56664", // Button text color on hover
+    backgroundColor: "#fff",
+    color: "#f56664",
     fontFamily: "Montserrat",
     border: "none",
     padding: "10px 20px",
     borderRadius: "5px",
     cursor: "pointer",
-    transition: "background-color 0.5s ease-in-out", // Transition effect
+    transition: "background-color 0.5s ease-in-out",
   };
 
   const imageStyle = {
     position: "absolute",
-    left: "10px", // Position the above image to the left
-    top: "80px", // Add some space from the top
+    left: "10px",
+    top: "80px",
     width: "400px",
-    marginBottom: "20px", // Add margin bottom to create space between image and login box
+    marginBottom: "20px",
   };
 
   const imageBelowStyle = {
     position: "absolute",
-    right: "10px", // Position the below image to the right
-    bottom: "50px", // Add some space from the bottom
+    right: "10px",
+    bottom: "50px",
     width: "400px",
-    marginBottom: "20px", // Add margin bottom to create space between image and login box
+    marginBottom: "20px",
   };
 
   return (
@@ -89,9 +90,9 @@ const Login = () => {
         <h1 style={titleStyle}>LOGIN</h1>
         <div style={buttonContainerStyle}>
           <Button
-            style={isHovered ? hoverButtonStyle : buttonStyle} // Apply style based on hover state
-            onMouseEnter={() => setIsHovered(true)} // Set hover state to true on mouse enter
-            onMouseLeave={() => setIsHovered(false)} // Set hover state to false on mouse leave
+            style={isHovered ? hoverButtonStyle : buttonStyle}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             onClick={handleGoogleLogin}
           >
             <FaGoogle /> Login with Google
